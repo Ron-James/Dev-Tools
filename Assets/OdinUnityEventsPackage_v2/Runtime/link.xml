@@ -1,0 +1,10 @@
+<linker>
+  <assembly fullname="Assembly-CSharp">
+    <type fullname="OdinEvents.OdinUnityEvent" preserve="all"/>
+    <type fullname="OdinEvents.OdinUnityEvent`1" preserve="all"/>
+    <type fullname="OdinEvents.OdinUnityEvent`2" preserve="all"/>
+    <type fullname="OdinEvents.OdinUnityEvent`3" preserve="all"/>
+    <type fullname="OdinEvents.MethodReferenceBase" preserve="all"/>
+    <type fullname="OdinEvents.InterfaceArg`1" preserve="all"/>
+  </assembly>
+</linker>

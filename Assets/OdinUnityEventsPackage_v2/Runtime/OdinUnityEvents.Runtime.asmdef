@@ -1,0 +1,19 @@
+{
+  "name": "OdinUnityEvents.Runtime",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "Sirenix.OdinInspector",
+      "expression": "3.0.0",
+      "define": "HAS_ODIN_INSPECTOR"
+    }
+  ],
+  "noEngineReferences": false
+}
