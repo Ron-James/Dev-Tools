@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
@@ -17,7 +18,8 @@ public interface IGuidAsset : IEquatable<IGuidAsset>
 public interface IGuidAssetLookup
 {
     ScriptableObject GetAssetByGuid(string guid);
-    T GetAssetByGuid<T>(string guid) where T : ScriptableObject;
+    IEnumerable<T> AllOfType<T>() where T :  IGuidAsset;
+    T GetAssetByGuid<T>(string guid) where T : IGuidAsset;
     bool TryGetAssetByGuid<T>(string guid, out T asset) where T : ScriptableObject;
     ScriptableObject[] All();
 }
@@ -26,6 +28,27 @@ public interface IGuidReference
 {
     string Guid { get; set; }
     IGuidAsset Asset { get; }
+}
+
+public interface IGuidReference<T> : IGuidReference where T : IGuidAsset
+{
+    T ResolvedAsset { get; }
+}
+
+
+
+
+public class GuidReference<T> : GuidReference, IGuidReference<T> where T : IGuidAsset
+{
+    [ShowInInspector, ReadOnly]
+    public T ResolvedAsset
+    {
+        get
+        {
+            var asset = Asset;
+            return asset is T typed ? typed : default;
+        }
+    }
 }
 
 public class GuidReference : IGuidReference
@@ -47,6 +70,11 @@ public class GuidReference : IGuidReference
             _guid = value;
             _asset = null; // force re-resolve on next access
         }
+    }
+
+    public GuidReference()
+    {
+        EnsureLookup();
     }
     
     [Button, GUIColor("green")]
@@ -107,7 +135,7 @@ public class GuidReference : IGuidReference
 
 public abstract class SerializableScriptableObject : SerializedScriptableObject, IGuidAsset
 {
-    [OdinSerialize]
+    [OdinSerialize, FoldoutGroup("GUID")]
     private Guid _cachedGuid; // serialized via Odin
 
     // Empty string if not yet assigned (so inspectors can detect missing state)
@@ -117,15 +145,24 @@ public abstract class SerializableScriptableObject : SerializedScriptableObject,
     private void OnValidate()
     {
         // Assign once if missing; avoid changing existing GUIDs
-        if (_cachedGuid == default)
+        if (_cachedGuid.ToString() == "00000000-0000-0000-0000-000000000000" || string.IsNullOrEmpty(Guid) || _cachedGuid == default)
         {
             AssignGuid();
         }
     }
-    
+
+
+    private void Reset()
+    {
+        if (_cachedGuid.ToString() == "00000000-0000-0000-0000-000000000000" || string.IsNullOrEmpty(Guid) || _cachedGuid == default)
+        {
+            AssignGuid();
+        }
+    }
+
     public void AssignGuid()
     {
-        if (_cachedGuid != default) return; // assign only once
+        if (_cachedGuid != default || !string.IsNullOrEmpty(Guid)) return; // assign only once
         _cachedGuid = System.Guid.NewGuid();
 #if UNITY_EDITOR
         // Persist in editor

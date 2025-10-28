@@ -199,6 +199,25 @@ public sealed class ScriptableObjectManagerAsset : SerializedScriptableObject, I
         return null;
     }
 
+    public IEnumerable<T> AllOfType<T>() where T : IGuidAsset
+    {
+        EnsureInitialized();
+        foreach (var (type, map) in _registry)
+        {
+            if (!typeof(T).IsAssignableFrom(type)) continue;
+            foreach (var value in map.Values)
+            {
+                if (value is T typed)
+                    yield return typed;
+            }
+        }
+    }
+
+    T IGuidAssetLookup.GetAssetByGuid<T>(string guid)
+    {
+        throw new NotImplementedException();
+    }
+
     public T GetAssetByGuid<T>(string guid) where T : ScriptableObject
     {
         if (string.IsNullOrEmpty(guid)) return null;

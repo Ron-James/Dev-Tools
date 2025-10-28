@@ -16,7 +16,15 @@ using UnityEngine.Events;
 public interface ICommand
 {
     Task Execute();
+    // Every command must provide an Undo operation. For simple commands that do not
+    // change state or where undo isn't meaningful, implementers should provide a no-op
+    // Task.CompletedTask implementation. This strict contract keeps the invoker simple
+    // and consistent: every completed command can be undone.
+    Task Undo();
 }
+
+
+
 
 // --------------------------------------------------------------------------------------
 // Example Command: Play an AudioClip and wait until it finishes
@@ -45,7 +53,11 @@ public class AudioPlayCommand : ICommand
 
         onCommandComplete?.Invoke();
     }
+    
+    // Playing audio is not stateful for undo in this sample; provide no-op.
+    public Task Undo() => Task.CompletedTask;
 }
+
 
 
 public class CompositeCommand : ICommand
@@ -67,6 +79,18 @@ public class CompositeCommand : ICommand
 
         // Await all to complete.
         await Task.WhenAll(commandTasks);
+    }
+    
+    // CompositeUndo: undo subcommands in reverse order
+    public async Task Undo()
+    {
+        if (_subCommands == null || _subCommands.Count == 0) return;
+        for (int i = _subCommands.Count - 1; i >= 0; i--)
+        {
+            try { await _subCommands[i].Undo(); }
+            catch (Exception ex) { Debug.LogError($"CompositeCommand.Undo: {ex}"); }
+            await Awaitable.NextFrameAsync();
+        }
     }
 }
 
@@ -107,6 +131,9 @@ public class MessageWaitCommand : ICommand, IEventListener
         _onCommandComplete?.Invoke();
     }
 
+    // MessageWaitCommand doesn't mutate state by default; Undo is no-op here.
+    public Task Undo() => Task.CompletedTask;
+
     private void SubscribeEvent() => _eventBus.Subscribe(this);
     private void UnsubscribeEvent() => _eventBus.Unsubscribe(this);
 
@@ -125,7 +152,7 @@ public class MessageWaitCommand : ICommand, IEventListener
 // Limitations
 // - Stop cancels between commands only (no per-command cancellation support here).
 // - Pause only affects the gap between commands (does not pause an in-flight command).
-public class CommandExecutor : SerializedMonoBehaviour
+public partial class CommandExecutor : SerializedMonoBehaviour, ICommandInvoker
 {
     // Queue of commands to execute (Inspector-visible thanks to Odin).
     [OdinSerialize,
@@ -259,5 +286,17 @@ public class CommandExecutor : SerializedMonoBehaviour
             _currentCommand = null;
             IsRunning = false;
         }
+    }
+
+    public Task InvokeCommand(ICommand command)
+    {
+        Enqueue(command);
+        return RunQueueAsync();
+    }
+
+    public Task InvokeQueuedCommands(IEnumerable<ICommand> commands)
+    {
+        EnqueueRange(commands);
+        return RunQueueAsync();
     }
 }

@@ -426,14 +426,6 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  scriptableObjects: []
-  _lookup:
-    rid: -2
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
 --- !u!4 &241927674
 Transform:
   m_ObjectHideFlags: 0
@@ -1192,6 +1184,101 @@ MonoBehaviour:
       Data: 0
     - Name: 
       Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: OnEventRaisedBus
+      Entry: 7
+      Data: 1|EventBus`1[[System.String, mscorlib]], Assembly-CSharp
+    - Name: _listeners
+      Entry: 7
+      Data: 2|System.Collections.Generic.List`1[[IEventListener, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 3|ProductCommandExecutor, Assembly-CSharp
+    - Name: _commandsToExecute
+      Entry: 7
+      Data: 4|ICommand[], Assembly-CSharp
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _executeInParallel
+      Entry: 5
+      Data: false
+    - Name: CommandExecutorListener`1+_commandsToExecute
+      Entry: 7
+      Data: 5|ICommand`1[[IProduct, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null]][], Assembly-CSharp
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: CommandExecutorListener`1+_executeInParallel
+      Entry: 5
+      Data: false
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 6|CommandExecutorListener, Assembly-CSharp
+    - Name: _commandsToExecute
+      Entry: 7
+      Data: 7|ICommand[], Assembly-CSharp
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: 8|InventoryAddCommand, Assembly-CSharp
+    - Name: _inventoryService
+      Entry: 6
+      Data: 
+    - Name: _item
+      Entry: 6
+      Data: 
+    - Name: _quantity
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _executeInParallel
+      Entry: 5
+      Data: false
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _defaultRaiseValue
+      Entry: 6
       Data: 
     - Name: 
       Entry: 8

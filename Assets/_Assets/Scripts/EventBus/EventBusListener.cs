@@ -5,21 +5,25 @@ using Sirenix.Serialization;
 using UnityEngine;
 using UnityEngine.Events;
 
-public abstract class EventBusListener<T> : SerializedMonoBehaviour, IEventListener<T>
+public abstract class EventBusListener<T> : SerializedMonoBehaviour, IEventListener<T>, IValueAsset<T>
 {
     [Title("General Settings")] [SerializeField]
     private bool CheckValueAssetsOnStart;
     [Title("Event Bus")]
     [OdinSerialize] protected IEventBus[] eventBuses;
     [Title("Filter Settings")]
+    
     [SerializeField] private bool useFilter = false;
-    [ShowIf(nameof(useFilter)), SerializeField] private T listenValue;
-    [SerializeField, ShowIf(nameof(useFilter))] private bool inverseFilter = false;
-    [SerializeField, ShowIf(nameof(useFilter))] private List<T> filterValues = new List<T>();
+    [ShowIf(nameof(useFilter)), SerializeField] protected T listenValue;
+    [SerializeField, ShowIf(nameof(useFilter))] protected bool inverseFilter = false;
+    [SerializeField, ShowIf(nameof(useFilter))] protected List<T> filterValues = new List<T>();
     
     [Title("Unity Events")]
     [SerializeField] private UnityEvent<T> onEventRaised;
     [SerializeField] private UnityEvent onEventRaisedEmpty;
+    
+    [Title("Response Bus")]
+    [OdinSerialize] protected IEventBus<T> OnEventRaisedBus;
     
     [Button]
     public void OnEventRaised(T eventData)
@@ -29,6 +33,8 @@ public abstract class EventBusListener<T> : SerializedMonoBehaviour, IEventListe
         {
             return;
         }
+        
+        OnEventRaisedBus?.Raise(eventData);
         onEventRaised?.Invoke(eventData);
         onEventRaisedEmpty?.Invoke();
         TriggerEvents(eventData);
@@ -119,10 +125,22 @@ public abstract class EventBusListener<T> : SerializedMonoBehaviour, IEventListe
     protected virtual bool FilterAllows(T eventData)
     {
         if (!useFilter) return true;
+        bool inFilterList;
+        if(eventData is IGuidAsset && listenValue is IGuidAsset)
+        {
+            bool isGuidEqual = ((IGuidAsset)eventData).Guid == ((IGuidAsset)listenValue).Guid;
+            inFilterList = filterValues.Exists(v => 
+                v is IGuidAsset guidAsset && 
+                ((IGuidAsset)eventData).Guid == guidAsset.Guid);
+            return isGuidEqual || inFilterList;
+        }
         bool isListening = EqualityComparer<T>.Default.Equals(eventData, listenValue);
-        bool inFilterList = filterValues.Contains(eventData);
+        inFilterList = filterValues.Contains(eventData);
         bool result = isListening || inFilterList;
         if (inverseFilter) result = !result;
         return result;
     }
+    
+
+    public virtual T StoredValue { get => listenValue; set => listenValue = value; }
 }
